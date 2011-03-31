@@ -38,6 +38,7 @@ from esgcet.model import Dataset, ERROR_LEVEL
 from esgcet.config import getOfflineLister
 from esgcet.ui.help_ScrolledText import Help
 from esgcet.exceptions import *
+import threading 
 
 class dataset_widgets:
     """
@@ -102,7 +103,7 @@ class dataset_widgets:
                     text='Create/Replace',
                     background = "lightblue",
                     font= bnFont,
-                    command = pub_controls.Command( self.start_update_extraction_button, False ))
+                    command = pub_controls.Command( self.thread_update_extraction_button, False ))
       cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
 
       # Create and pack the LabeledWidgets to update extraction
@@ -117,7 +118,7 @@ class dataset_widgets:
                     text='Append/Update',
                     background = "lightblue",
                     font = bnFont,
-                    command = pub_controls.Command( self.start_update_extraction_button, True ))
+                    command = pub_controls.Command( self.thread_update_extraction_button, True ))
       cw_update.pack(padx=10, pady=10, expand='yes', fill='both')
 
 #      Pmw.alignlabels( (lw_start1, lw_start2, lw_start3, lw_update) )
@@ -136,7 +137,13 @@ class dataset_widgets:
     def evt_dataset_unselect_all( self ):
        self.parent.parent.menu.Dataset.evt_unselect_all_dataset( self.parent.parent )
 
-    def start_update_extraction_button( self, append_status=False ):
+
+    def start_update_extraction_button( self, append_status=False):
+        
+       threading.Thread(target=self.thread_update_extraction_button(self , append_status ).start())
+
+
+    def thread_update_extraction_button( self, append_status=False ):
        from esgcet.publish.utility import filelistIterator, directoryIterator
        from esgcet.publish.utility import StopEvent
 
