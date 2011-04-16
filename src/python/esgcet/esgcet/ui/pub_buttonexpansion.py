@@ -25,6 +25,7 @@ import pub_expand_extraction_gui
 import pub_expand_quality_control_gui
 import pub_expand_query_gui
 import pub_expand_deletion_control_gui
+import pub_expand_gw_query_control_gui
 
 from pkg_resources import resource_filename
 blue_right = resource_filename('esgcet.ui', 'blue_right.gif')
@@ -168,6 +169,31 @@ class create_publisher_button_expansion:
       # End the create the fifth control button for "Dataset Deletion"
       #----------------------------------------------------------------------------------------
 
+      # 
+      #----------------------------------------------------------------------------------------
+      # Create the sixth control button for "Gateway Query "
+      #----------------------------------------------------------------------------------------
+      self.control_toggle6=0
+      self.ControlButton6 = Tkinter.Button(button_parent,
+                       compound = Tkinter.LEFT,
+                       justify = Tkinter.LEFT,
+                       anchor = Tkinter.W,
+                       image = self.right,
+                       text = 'Gateway Query',
+                       font = bxtFont,
+                       bg = 'lightblue',
+                       command = pub_controls.Command(self.view_controls6, button_parent))
+      self.ControlButton6.image = self.right # save the image from garbage collection
+      self.ControlButton6.pack(side = 'top', fill = 'x')
+      self.parent.balloon.bind(self.ControlButton6, "Issue Queries to the default gateway: pcmdi6.llnl.gov.")
+      self.control_frame6 = Tkinter.Frame(button_parent, width=5,height=5)
+
+      # generate the deletion control widgets (was query_widgets BUG?)
+      self.gateway_query_widgets = pub_expand_gw_query_control_gui.gateway_query_widgets( self )
+      #----------------------------------------------------------------------------------------
+      # End the create the fifth control button for "Dataset Deletion"
+      #----------------------------------------------------------------------------------------
+     
 
    #----------------------------------------------------------------------------------------
    # Expand and contract the view controls for "Specify Datasets"
@@ -190,6 +216,9 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
       else:
          self.control_frame1.pack_forget()
          self.control_toggle1 = 0
@@ -216,6 +245,9 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
       else:
          self.control_frame2.pack_forget()
          self.control_toggle2 = 0
@@ -242,6 +274,9 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
       else:
          self.control_frame3.pack_forget()
          self.control_toggle3 = 0
@@ -268,6 +303,9 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
       else:
          self.control_frame4.pack_forget()
          self.control_toggle4 = 0
@@ -294,11 +332,43 @@ class create_publisher_button_expansion:
          self.control_frame4.pack_forget()
          self.control_toggle4 = 0
          self.ControlButton4.configure(image = self.right )
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
       else:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
 
+
+   #----------------------------------------------------------------------------------------
+   # Expand and contract the view controls for "Metadata Query, Update, and Delete"
+   #----------------------------------------------------------------------------------------
+   def view_controls6(self, parent):
+      if self.control_toggle6 == 0:
+         self.control_frame6.pack(side='top', after=self.ControlButton6, fill='x')
+         self.control_toggle6 = 1
+         self.ControlButton6.configure(image = self.down )
+
+         self.control_frame1.pack_forget()
+         self.control_toggle1 = 0
+         self.ControlButton1.configure(image = self.right )
+         self.control_frame2.pack_forget()
+         self.control_toggle2 = 0
+         self.ControlButton2.configure(image = self.right )
+         self.control_frame3.pack_forget()
+         self.control_toggle3 = 0
+         self.ControlButton3.configure(image = self.right )
+         self.control_frame4.pack_forget()
+         self.control_toggle4 = 0
+         self.ControlButton4.configure(image = self.right )
+         self.control_frame5.pack_forget()
+         self.control_toggle5 = 0
+         self.ControlButton5.configure(image = self.right )
+      else:
+         self.control_frame6.pack_forget()
+         self.control_toggle6 = 0
+         self.ControlButton6.configure(image = self.right )
 #----------------------------------------------------------------------------------------
 # End the class creation of the publisher control expansion buttons
 #----------------------------------------------------------------------------------------

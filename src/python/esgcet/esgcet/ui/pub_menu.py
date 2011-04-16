@@ -24,6 +24,7 @@ import pub_controls
 import logging
 import pub_busy
 import pub_expand_deletion_control_gui
+import pub_expand_gw_query_control_gui
 from help_ScrolledText import Help
 from help_HTML import helpHTML
 from help_File_HTML import LocalHelpHTML
@@ -739,6 +740,97 @@ class create_dataset_menu:
       # ganz refresh [if there were no exceptions] dataset list after deletions 
       parent.pub_buttonexpansion.query_widgets.parent.parent.ntk.evt_refresh_list_of_datasets(selected_page )
      
+#########################################################################################
+# Process the Gateway Query command for selected datasets
+#########################################################################################
+   def evt_query_gw_for_dataset(self, parent):
+      from esgcet.publish import pollDatasetPublicationStatus
+
+      # Start the busy routine to indicate to the users something is happening
+      parent.busyCursor = 'watch'
+      parent.busyWidgets = [parent.pane2.pane( 'EditPaneTop' ), parent.pane2.pane( 'EditPaneBottom' ), parent.pane2.pane( 'EditPaneStatus' ), parent.pane.pane( 'ControlPane' )]
+      pub_busy.busyStart( parent )
+
+      datasetNames = []
+      GUI_line = {}
+      QUERY = 1
+      #UNPUBLISH = 2
+      NO_OPERATION = 3
+      
+      QueryFiles = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox1() 
+      QueryList = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox2() 
+      QueryMetadata = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox3() 
+      QueryURLs = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox4()
+
+      selected_page = parent.main_frame.selected_top_page
+      if selected_page is not None:
+         tab_name = parent.top_notebook.getcurselection()
+         for x in parent.main_frame.top_page_id[selected_page]:
+            if parent.main_frame.top_page_id[selected_page][x].cget('bg') != 'salmon' and parent.main_frame.top_page_id2[selected_page][x].cget('bg') != 'salmon':
+                dset_name = parent.main_frame.top_page_id2[selected_page][x].cget('text')
+                               
+
+                try:
+                    dset_version = parent.main_frame.version_label[selected_page][x].cget('text')
+                except:
+                    dset_version = -1
+                    #print 'Delete all versions'   
+                #dset_version = 1
+                if (dset_version == 'N/A' or not dset_version):
+                    dset_version = -1
+                    
+                datasetNames.append([dset_name, dset_version]) 
+                    # continue   # not published, yet
+                # Only query published events
+#                status = pollDatasetPublicationStatus(dset_name, self.Session)
+#                if status == 3:
+#                   datasetNames.append([dset_name, dset_version])         
+#                else:
+#                   parent.main_frame.top_page_id[selected_page][x].configure(relief = 'raised', background = 'salmon', image = self.off)
+#                GUI_line[ dset_name ] = x
+            else:
+                if parent.main_frame.top_page_id2[selected_page][x].cget('bg') == 'salmon':
+                   parent.main_frame.top_page_id[selected_page][x].configure(relief = 'raised', background = 'salmon', image = self.off)
+      else:
+         warning("%d: No pages generated for selection. Gateway Query is only used to query published datasets." % logging.WARNING)
+
+      # Query dataset from the gateway, etc.
+      if (QueryFiles==0 and QueryList==0 and QueryMetadata==1 and QueryURLs==1) :
+          ans = self.warn_On_Removal()
+          if (ans == FALSE):
+              return
+      print('we have something to query:')
+      
+      for name,version in datasetNames:
+          print name
+          
+#      if QueryGateway==1:
+#          gatewayOp = QUERY
+#      else:
+#          gatewayOp = NO_OPERATION
+#    # now decide if there is anything to do
+#      if (gatewayOp==1 or DeleteThredds==1 or DeleteLocalDB==1) :   
+#          las=False
+#          thredds = (DeleteThredds==1)              
+#          deleteDset = (DeleteLocalDB==1)
+              
+      testProgress = (parent.parent.statusbar.show, 0, 100)
+          #status_dict = deleteDatasetList(datasetNames, self.Session, gatewayOp, thredds, las, deleteDset, progressCallback=testProgress)
+
+
+      # Show the published status
+#      try:
+#         for x in status_dict.keys():
+#            status = status_dict[ x ]
+#            parent.main_frame.status_label[selected_page][GUI_line[x]].configure(text=pub_controls.return_status_text( status) )
+#      except:
+#         pass
+
+      pub_busy.busyEnd( parent )
+      # ganz refresh [if there were no exceptions] dataset list after deletions 
+      #parent.pub_buttonexpansion.query_widgets.parent.parent.ntk.evt_refresh_list_of_datasets(selected_page )
+     
+
 
 #----------------------------------------------------------------------------------------
 # Create the Login menu and its menu items
