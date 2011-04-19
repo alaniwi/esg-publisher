@@ -78,10 +78,10 @@ class gateway_query_widgets:
       self.QueryMetadata1 = Checkbutton(self.group_list_generation.interior(), text = "Metadata", variable = gateway_query_widgets.CheckVar3, \
                  onvalue = 1, offvalue = 0, height=2, width = 8) 
            
-      self.QueryFiles1.grid(row=0, column=0, sticky=W)
-      self.QueryList1.grid(row=1, column=0, sticky=W)      
-      self.QueryURLs1.grid(row=2, column=0, sticky=W)
-      self.QueryMetadata1.grid(row=3, column=0, sticky=W)
+      self.QueryFiles1.grid(row=1, column=0, sticky=W, ipadx=0, ipady=0, padx=0, pady=0)
+      self.QueryList1.grid(row=2, column=0, sticky=W, ipadx=0, ipady=0, padx=0, pady=0)      
+      self.QueryURLs1.grid(row=3, column=0, sticky=W, ipadx=0, ipady=0, padx=0, pady=0)
+      self.QueryMetadata1.grid(row=4, column=0, sticky=W, ipadx=0, ipady=0, padx=0, pady=0)
        
       self.parent.parent.balloon.bind(self.QueryFiles1, "List the data files in the selected parent datasets")
       self.parent.parent.balloon.bind(self.QueryList1, "List the children in the selected parent datasets (verbose lists metadata for each child dataset)")
@@ -102,27 +102,31 @@ class gateway_query_widgets:
                     background = "lightblue",
                     command = pub_controls.Command( self.evt_query_selected_dataset ))
       cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
-      lw_start3.grid(row=5, sticky=W)
+      lw_start3.grid(row=6, sticky=W)
+      
       self.parent.parent.balloon.bind(cw_start, "Issue a Gateway Query from the selected choices above and using the selected datasets.")
       
       self.group_list_generation.pack(side='top', fill='x', pady=3)
  
 #########################################################################################
       self.group_experiments_generation = Pmw.Group(self.parent.control_frame6a,
-                        tag_text = 'Experiments Options:',
+                        tag_text = 'Other Options:',
                         tag_font = glFont,
                         tagindent = 25)
 
 
       # Line separator
+      """
       w = Canvas(self.parent.control_frame6a, width=600, height=2)
       w.pack()
 
       w.create_line(0, 1, 600, 1, fill="black")
+      """
+      
       lw_start4 = Pmw.LabeledWidget(self.group_experiments_generation.interior(),
                     labelpos = 'w',
                     label_font = bnFont,
-                    label_text = 'Generate List of Experiments: ')
+                    label_text = 'Experiments List: ')
       lw_start4.component('hull').configure(relief='sunken', borderwidth=2)
       lw_start4.pack(side='bottom', expand = 1, fill = 'both', padx=10, pady=10)
       cw_start4 = Tkinter.Button(lw_start4.interior(),
@@ -132,7 +136,7 @@ class gateway_query_widgets:
                     command = pub_controls.Command( self.evt_query_selected_dataset ))
       cw_start4.pack(padx=10, pady=10, expand='yes', fill='both')
       lw_start4.grid(row=1, sticky=W)
-      self.parent.parent.balloon.bind(cw_start4, "Generate a List Experiments.")
+      self.parent.parent.balloon.bind(cw_start4, "Build a List.")
       
       self.group_experiments_generation.pack(side='top', fill='x', pady=3)
       
@@ -141,11 +145,13 @@ class gateway_query_widgets:
 #########################################################################################
  
       # Line separator
+      """
       w = Canvas(self.parent.control_frame6a, width=600, height=2)
       w.pack()
 
       w.create_line(0, 1, 600, 1, fill="black")
-
+      """
+      
       self.group_output_generation = Pmw.Group(self.parent.control_frame6a,
                         tag_text = 'Output Format Options:',
                         tag_font = glFont,
