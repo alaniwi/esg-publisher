@@ -53,9 +53,7 @@ class gateway_query_widgets:
       global CheckVar4
       gateway_query_widgets.CheckVar4 = IntVar() # 
       
-      #global CheckVar2 = IntVar()
-      #global CheckVar3 = IntVar()
-      
+  
       #----------------------------------------------------------------------------------------
       # Begin the creation of the button controls
       #----------------------------------------------------------------------------------------
@@ -64,66 +62,33 @@ class gateway_query_widgets:
       # Create and pack the LabeledWidgets to "Select All" datasets
       bnFont=tkFont.Font(self.parent.parent, family = pub_controls.label_button_font_type,  size=pub_controls.label_button_font_size, weight=font_weight)
 
-      # Create and pack the LabeledWidgets to "Select All" datasets
-#      lw_start1 = Pmw.LabeledWidget(self.parent.control_frame5,
-#                    labelpos = 'w',
-#                    label_font = bnFont,
-#                    label_text = 'Dataset: ')
-#      lw_start1.component('hull').configure(relief='sunken', borderwidth=2)
-#      lw_start1.pack(side='top', expand = 1, fill = 'both', padx=10, pady=10)
-#      cw_start = Tkinter.Button(lw_start1.interior(),
-#                    text='Select All',
-#                    font = bnFont,
-#                    background = "aliceblue",
-#                    command = pub_controls.Command( self.evt_dataset_select_all ))
-#      cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
-
-      # Create and pack the LabeledWidgets to "Unselect All" datasets
-#      bnFont=tkFont.Font(self.parent.parent, family = pub_controls.label_button_font_type,  size=pub_controls.label_button_font_size, weight=font_weight)
-
-#      lw_start2 = Pmw.LabeledWidget(self.parent.control_frame5,
-#                    labelpos = 'w',
-#                    label_font = bnFont,
-#                    label_text = 'Dataset: ')
-#      lw_start2.component('hull').configure(relief='sunken', borderwidth=2)
-#      lw_start2.pack(side='top', expand = 1, fill = 'both', padx=10, pady=10)
-#      cw_start = Tkinter.Button(lw_start2.interior(),
-#                    text='Unselect All',
-#                    font = bnFont,
-#                    background = "aliceblue",
-#                    command = pub_controls.Command( self.evt_dataset_unselect_all ))
-#      cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
-
-      # Create and pack the LabeledWidgets to "Remove" selected datasets
       
+      self.group_list_generation = Pmw.Group(self.parent.control_frame6a,
+                        tag_text = 'Selection Choices:',
+                        tag_font = glFont,
+                        tagindent = 25)
       
-      lw_start1 = Pmw.LabeledWidget(self.parent.control_frame6,
-                    labelpos = 'w',
-                    label_font = bnFont,
-                    label_text = 'Select Query Action for selected Datasets: ')
-      lw_start1.component('hull').configure(relief='flat', borderwidth=2)
-#      lw_start1.pack(side='top', expand = 1, fill = 'both', padx=10, pady=10)      
-      lw_start1.grid(row=0, sticky=N)
-      
-      
-      QueryFiles = Checkbutton(self.parent.control_frame6, text = "Files", variable = gateway_query_widgets.CheckVar1, \
+  
+      QueryFiles1 = Checkbutton(self.group_list_generation.interior(), text = "Files", variable = gateway_query_widgets.CheckVar1, \
                  onvalue = 1, offvalue = 0, height=2, width = 5) 
-      QueryList = Checkbutton(self.parent.control_frame6, text  = "List", variable = gateway_query_widgets.CheckVar2, \
+      QueryList1 = Checkbutton(self.group_list_generation.interior(), text  = "List", variable = gateway_query_widgets.CheckVar2, \
                  onvalue = 1, offvalue = 0, height=2, width = 4)
-      QueryURLs = Checkbutton(self.parent.control_frame6, text  = "Urls", variable = gateway_query_widgets.CheckVar4, \
+      QueryURLs1 = Checkbutton(self.group_list_generation.interior(), text  = "Urls", variable = gateway_query_widgets.CheckVar4, \
                  onvalue = 1, offvalue = 0, height=2, width = 4)
-      QueryMetadata = Checkbutton(self.parent.control_frame6, text = "Metadata", variable = gateway_query_widgets.CheckVar3, \
+      QueryMetadata1 = Checkbutton(self.group_list_generation.interior(), text = "Metadata", variable = gateway_query_widgets.CheckVar3, \
                  onvalue = 1, offvalue = 0, height=2, width = 8) 
+           
+      QueryFiles1.grid(row=0, column=0, sticky=W)
+      QueryList1.grid(row=1, column=0, sticky=W)
       
-      QueryFiles.grid(row=1, column=0, sticky=W)
-      QueryList.grid(row=2, column=0, sticky=W)
-      
-      QueryURLs.grid(row=3, column=0, sticky=W)
-      QueryMetadata.grid(row=4, column=0, sticky=W)
+      QueryURLs1.grid(row=2, column=0, sticky=W)
+      QueryMetadata1.grid(row=3, column=0, sticky=W)
+            
+      #self.parent.control_frame6a.pack(side="top", fill = 'x', pady=5)
       
       bnFont=tkFont.Font(self.parent.parent, family = pub_controls.label_button_font_type,  size=pub_controls.label_button_font_size, weight=font_weight)
 
-      lw_start3 = Pmw.LabeledWidget(self.parent.control_frame6,
+      lw_start3 = Pmw.LabeledWidget(self.group_list_generation.interior(),
                     labelpos = 'w',
                     label_font = bnFont,
                     label_text = 'Query Gateway: ')
@@ -137,13 +102,46 @@ class gateway_query_widgets:
       cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
       lw_start3.grid(row=5, sticky=W)
       
-      QueryFiles.select()
-      QueryList.select()
-      QueryURLs.select()
-      QueryMetadata.select()
-#      Pmw.alignlabels( (lw_start1, C1,C2,C3, lw_start3) )
-#      Pmw.alignlabels( (lw_start1, lw_start2, lw_start3) )
-#      Pmw.alignlabels( (lw_start3) )
+      
+      self.group_list_generation.pack(side='top', fill='x', pady=3)
+      
+#########################################################################################
+ 
+      # Line separator
+      w = Canvas(self.parent.control_frame6a, width=600, height=2)
+      w.pack()
+
+      w.create_line(0, 1, 600, 1, fill="black")
+
+      self.group_output_generation = Pmw.Group(self.parent.control_frame6a,
+                        tag_text = 'Output Format Options:',
+                        tag_font = glFont,
+                        tagindent = 25)
+      
+      self.on_off = Pmw.RadioSelect(self.group_output_generation.interior(),
+        buttontype = 'radiobutton',
+        orient = 'horizontal',
+        labelpos = 'w',
+        command = pub_controls.Command( self.evt_verbose_on_or_off, ),
+        label_text = 'Verbose: ',
+                label_font = bnFont,
+        hull_borderwidth = 2,
+        hull_relief = 'ridge',
+      )
+      self.on_off.pack(side = 'top', expand = 1, padx = 10, pady = 10)
+
+      # Add some buttons to the radiobutton RadioSelect.
+      for text in ('On', 'Off'):
+          self.on_off.add(text, font = bnFont)
+      self.on_off.setvalue('On')   
+      self.group_output_generation.pack(side='top', fill='x', pady=3)
+      
+      QueryFiles1.select()
+      QueryList1.select()
+      QueryURLs1.select()
+      QueryMetadata1.select()
+      
+
 
       #----------------------------------------------------------------------------------------
       # End the creation of the button controls
@@ -176,6 +174,26 @@ class gateway_query_widgets:
     @staticmethod
     def get_CheckBox4():
         return gateway_query_widgets.CheckVar4.get() 
+    
+       #-----------------------------------------------------------------
+    # event functions to toggle working from online or offline mode
+    #-----------------------------------------------------------------
+    def evt_verbose_on_or_off( self, tag ):
+        # Reset the button colors
+        #self.cw_dir.configure( background=self.save_dir_btn_color, foreground='black' )
+        #self.cw_file.configure( background=self.save_file_btn_color, foreground='black' )
+        #self.cw_reg.configure( background=self.save_reg_btn_color, foreground='black' )
+
+        if tag == "Off": 
+           self.parent.parent.verbose_off = True
+
+        if tag == "On":
+           self.parent.parent.verbose_off = False
+
+         #  self.lw_dir.pack(side='top', before=self.lw_file, expand = 1, fill = 'both', padx=10, pady=10)
+
+
+       
     
 #---------------------------------------------------------------------
 # End of File

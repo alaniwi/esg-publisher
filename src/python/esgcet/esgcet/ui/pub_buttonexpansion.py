@@ -186,7 +186,8 @@ class create_publisher_button_expansion:
       self.ControlButton6.image = self.right # save the image from garbage collection
       self.ControlButton6.pack(side = 'top', fill = 'x')
       self.parent.balloon.bind(self.ControlButton6, "Issue Queries to the default gateway: pcmdi6.llnl.gov.")
-      self.control_frame6 = Tkinter.Frame(button_parent, width=5,height=5)
+      #self.control_frame6 = Tkinter.Frame(button_parent, width=5,height=5)
+      self.control_frame6a = Tkinter.Frame(button_parent, width=5,height=5)
 
       # generate the deletion control widgets (was query_widgets BUG?)
       self.gateway_query_widgets = pub_expand_gw_query_control_gui.gateway_query_widgets( self )
@@ -216,7 +217,7 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
       else:
@@ -245,7 +246,7 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
       else:
@@ -274,7 +275,7 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
       else:
@@ -303,7 +304,7 @@ class create_publisher_button_expansion:
          self.control_frame5.pack_forget()
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
       else:
@@ -332,7 +333,7 @@ class create_publisher_button_expansion:
          self.control_frame4.pack_forget()
          self.control_toggle4 = 0
          self.ControlButton4.configure(image = self.right )
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
       else:
@@ -346,7 +347,9 @@ class create_publisher_button_expansion:
    #----------------------------------------------------------------------------------------
    def view_controls6(self, parent):
       if self.control_toggle6 == 0:
-         self.control_frame6.pack(side='top', after=self.ControlButton6, fill='x')
+         self.control_frame6a.pack(side='top', after=self.ControlButton6, fill='x')
+         #self.control_frame6a.pack(side="top", fill = 'x', pady=5)
+         #self.group_list_generation.pack(side='top', after=self.ControlButton6, fill='x')
          self.control_toggle6 = 1
          self.ControlButton6.configure(image = self.down )
 
@@ -366,7 +369,8 @@ class create_publisher_button_expansion:
          self.control_toggle5 = 0
          self.ControlButton5.configure(image = self.right )
       else:
-         self.control_frame6.pack_forget()
+         self.control_frame6a.pack_forget()
+         #self.group_list_generation.pack_forget()
          self.control_toggle6 = 0
          self.ControlButton6.configure(image = self.right )
 #----------------------------------------------------------------------------------------
