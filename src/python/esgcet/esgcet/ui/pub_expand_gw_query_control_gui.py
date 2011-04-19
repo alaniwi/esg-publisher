@@ -64,27 +64,29 @@ class gateway_query_widgets:
 
       
       self.group_list_generation = Pmw.Group(self.parent.control_frame6a,
-                        tag_text = 'Selection Choices:',
+                        tag_text = 'Query Choices using Selected Datasets:',
                         tag_font = glFont,
                         tagindent = 25)
       
   
-      QueryFiles1 = Checkbutton(self.group_list_generation.interior(), text = "Files", variable = gateway_query_widgets.CheckVar1, \
+      self.QueryFiles1 = Checkbutton(self.group_list_generation.interior(), text = "Files", variable = gateway_query_widgets.CheckVar1, \
                  onvalue = 1, offvalue = 0, height=2, width = 5) 
-      QueryList1 = Checkbutton(self.group_list_generation.interior(), text  = "List", variable = gateway_query_widgets.CheckVar2, \
+      self.QueryList1 = Checkbutton(self.group_list_generation.interior(), text  = "List", variable = gateway_query_widgets.CheckVar2, \
                  onvalue = 1, offvalue = 0, height=2, width = 4)
-      QueryURLs1 = Checkbutton(self.group_list_generation.interior(), text  = "Urls", variable = gateway_query_widgets.CheckVar4, \
+      self.QueryURLs1 = Checkbutton(self.group_list_generation.interior(), text  = "Urls", variable = gateway_query_widgets.CheckVar4, \
                  onvalue = 1, offvalue = 0, height=2, width = 4)
-      QueryMetadata1 = Checkbutton(self.group_list_generation.interior(), text = "Metadata", variable = gateway_query_widgets.CheckVar3, \
+      self.QueryMetadata1 = Checkbutton(self.group_list_generation.interior(), text = "Metadata", variable = gateway_query_widgets.CheckVar3, \
                  onvalue = 1, offvalue = 0, height=2, width = 8) 
            
-      QueryFiles1.grid(row=0, column=0, sticky=W)
-      QueryList1.grid(row=1, column=0, sticky=W)
-      
-      QueryURLs1.grid(row=2, column=0, sticky=W)
-      QueryMetadata1.grid(row=3, column=0, sticky=W)
-            
-      #self.parent.control_frame6a.pack(side="top", fill = 'x', pady=5)
+      self.QueryFiles1.grid(row=0, column=0, sticky=W)
+      self.QueryList1.grid(row=1, column=0, sticky=W)      
+      self.QueryURLs1.grid(row=2, column=0, sticky=W)
+      self.QueryMetadata1.grid(row=3, column=0, sticky=W)
+       
+      self.parent.parent.balloon.bind(self.QueryFiles1, "List the data files in the selected parent datasets")
+      self.parent.parent.balloon.bind(self.QueryList1, "List the children in the selected parent datasets (verbose lists metadata for each child dataset)")
+      self.parent.parent.balloon.bind(self.QueryURLs1, "List the file access point URLs of the selected parent datasets")
+      self.parent.parent.balloon.bind(self.QueryMetadata1, "List the metadata associated with the selected datasets")
       
       bnFont=tkFont.Font(self.parent.parent, family = pub_controls.label_button_font_type,  size=pub_controls.label_button_font_size, weight=font_weight)
 
@@ -101,10 +103,41 @@ class gateway_query_widgets:
                     command = pub_controls.Command( self.evt_query_selected_dataset ))
       cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
       lw_start3.grid(row=5, sticky=W)
-      
+      self.parent.parent.balloon.bind(cw_start, "Issue a Gateway Query from the selected choices above and using the selected datasets.")
       
       self.group_list_generation.pack(side='top', fill='x', pady=3)
+ 
+#########################################################################################
+      self.group_experiments_generation = Pmw.Group(self.parent.control_frame6a,
+                        tag_text = 'Experiments Options:',
+                        tag_font = glFont,
+                        tagindent = 25)
+
+
+      # Line separator
+      w = Canvas(self.parent.control_frame6a, width=600, height=2)
+      w.pack()
+
+      w.create_line(0, 1, 600, 1, fill="black")
+      lw_start4 = Pmw.LabeledWidget(self.group_experiments_generation.interior(),
+                    labelpos = 'w',
+                    label_font = bnFont,
+                    label_text = 'Generate List of Experiments: ')
+      lw_start4.component('hull').configure(relief='sunken', borderwidth=2)
+      lw_start4.pack(side='bottom', expand = 1, fill = 'both', padx=10, pady=10)
+      cw_start4 = Tkinter.Button(lw_start4.interior(),
+                    text='Generate',
+                    font = bnFont,
+                    background = "lightblue",
+                    command = pub_controls.Command( self.evt_query_selected_dataset ))
+      cw_start4.pack(padx=10, pady=10, expand='yes', fill='both')
+      lw_start4.grid(row=1, sticky=W)
+      self.parent.parent.balloon.bind(cw_start4, "Generate a List Experiments.")
       
+      self.group_experiments_generation.pack(side='top', fill='x', pady=3)
+      
+      
+     
 #########################################################################################
  
       # Line separator
@@ -134,12 +167,12 @@ class gateway_query_widgets:
       for text in ('On', 'Off'):
           self.on_off.add(text, font = bnFont)
       self.on_off.setvalue('On')   
-      self.group_output_generation.pack(side='top', fill='x', pady=3)
+      self.group_output_generation.pack(side='left', fill='x', pady=3)
       
-      QueryFiles1.select()
-      QueryList1.select()
-      QueryURLs1.select()
-      QueryMetadata1.select()
+      self.QueryFiles1.select()
+      self.QueryList1.select()
+      self.QueryURLs1.select()
+      self.QueryMetadata1.select()
       
 
 
@@ -179,10 +212,7 @@ class gateway_query_widgets:
     # event functions to toggle working from online or offline mode
     #-----------------------------------------------------------------
     def evt_verbose_on_or_off( self, tag ):
-        # Reset the button colors
-        #self.cw_dir.configure( background=self.save_dir_btn_color, foreground='black' )
-        #self.cw_file.configure( background=self.save_file_btn_color, foreground='black' )
-        #self.cw_reg.configure( background=self.save_reg_btn_color, foreground='black' )
+ 
 
         if tag == "Off": 
            self.parent.parent.verbose_off = True
@@ -190,7 +220,6 @@ class gateway_query_widgets:
         if tag == "On":
            self.parent.parent.verbose_off = False
 
-         #  self.lw_dir.pack(side='top', before=self.lw_file, expand = 1, fill = 'both', padx=10, pady=10)
 
 
        
