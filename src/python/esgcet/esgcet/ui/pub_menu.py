@@ -757,10 +757,13 @@ class create_dataset_menu:
       #UNPUBLISH = 2
       NO_OPERATION = 3
       
-      QueryFiles = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox1() 
-      QueryList = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox2() 
-      QueryMetadata = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox3() 
-      QueryURLs = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckBox4()
+    
+      """
+      QueryFiles = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckVar_Files() 
+      QueryList = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckVar_List() 
+      QueryMetadata = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckVar_MetaData() 
+      QueryURLs = pub_expand_gw_query_control_gui.gateway_query_widgets.get_CheckVar_URLs()
+      """
 
       selected_page = parent.main_frame.selected_top_page
       if selected_page is not None:
@@ -795,6 +798,7 @@ class create_dataset_menu:
          warning("%d: No pages generated for selection. Gateway Query is only used to query published datasets." % logging.WARNING)
 
       # Query dataset from the gateway, etc.
+      """
       if (QueryFiles==0 and QueryList==0 and QueryMetadata==1 and QueryURLs==1) :
           ans = self.warn_On_Removal()
           if (ans == FALSE):
@@ -803,7 +807,7 @@ class create_dataset_menu:
       
       for name,version in datasetNames:
           print name
-          
+      """    
 #      if QueryGateway==1:
 #          gatewayOp = QUERY
 #      else:
@@ -830,7 +834,7 @@ class create_dataset_menu:
       # ganz refresh [if there were no exceptions] dataset list after deletions 
       #parent.pub_buttonexpansion.query_widgets.parent.parent.ntk.evt_refresh_list_of_datasets(selected_page )
      
-
+      return datasetNames
 
 #----------------------------------------------------------------------------------------
 # Create the Login menu and its menu items
