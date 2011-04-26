@@ -68,7 +68,7 @@ def printResult(header, tuples, out=sys.stdout, printHeaders=True):
             sys.exit(0)
     if printHeaders:
         print >>out, breakline
-        print >>out, '%d results found'%count
+        print >>out, '%d Results found'%count
 
 def parseQuery(arg):
     """Parse a query argument.

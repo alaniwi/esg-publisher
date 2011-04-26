@@ -588,7 +588,7 @@ class create_dataset_menu:
       # Create the "Select All" menu item
       #-----------------------------------------------------------------------------------
       self.remove_dataset = main_menu.addmenuitem(dataset_name, 'command', 'Select All',
-                         label = 'Select All',
+                         label = 'Select All X',
                          font = mnFont,
                          command = pub_controls.Command(self.evt_select_all_dataset, parent)
                         )
