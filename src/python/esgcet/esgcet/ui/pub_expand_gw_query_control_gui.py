@@ -25,6 +25,7 @@ import thread
 import logging
 import traceback
 from Tkinter import *
+from esgcet.query import printResult, queryDatasets, parseQuery, getQueryFields, updateDatasetFromContext, queryDatasetMap
 from esgcet.query.gateway import getRemoteMetadataService, getGatewayDatasetMetadata, getGatewayDatasetChildren, getGatewayExperiments, getGatewayDatasetFields, getGatewayDatasetFiles, getGatewayDatasetAccessPoints
 
 
@@ -212,7 +213,7 @@ class gateway_query_widgets:
        listMetadata = False
        listUrls = False
        parentDataset = None
-#       serviceUrl = None
+       serviceUrl = None
        urlParent = None
        verbose = gateway_query_widgets.get_Verbose()
        
@@ -255,28 +256,33 @@ class gateway_query_widgets:
                        print childid
                else:
                    fullresult = [getGatewayDatasetMetadata(item, serviceUrl=serviceUrl) for item in result]
-                   printResult(getGatewayDatasetFields(), fullresult)
+                   #printResult(getGatewayDatasetFields(), fullresult)
+                   printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
 
        if get_CheckVar_MetaData()==True:
            for datasetName,version in datasetNames: 
                 header = getGatewayDatasetFields()
                 result = getGatewayDatasetMetadata(datasetName, serviceUrl=serviceUrl)
-                printResult(header, [result])
+                #printResult(header, [result])
+                printResult(header, [result], sys.stdout, True)
 
        if get_CheckVar_Files()==True:
            for filesParent,version in datasetNames: 
                 header, result = getGatewayDatasetFiles(filesParent, serviceUrl=serviceUrl)
-                printResult(header, result)
+                printResult(header, result, sys.stdout, True)
         
        if get_CheckVar_URLs()==True:
            for urlParent,version in datasetNames: 
                 header, result = getGatewayDatasetAccessPoints(urlParent, serviceUrl=serviceUrl)
-                printResult(header, result)
+                printResult(header, result, sys.stdout, True)
         
         
-    def evt_list_experiments( self):    
+    def evt_list_experiments( self):  
+        serviceUrl = None  
         header, result = getGatewayExperiments(serviceUrl=serviceUrl)
-        printResult(header, result)
+        printResult(header, result, sys.stdout, True)
+        #printResult(header, result, sys.stderr, True)
+        #printResult(header, result)
 
 
     @staticmethod
