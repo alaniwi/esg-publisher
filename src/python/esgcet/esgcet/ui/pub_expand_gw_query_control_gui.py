@@ -249,6 +249,8 @@ class gateway_query_widgets:
 
        
        if get_CheckVar_List()==True:
+           print " "
+           print "Performing Gateway Query for Listing Metadata for all children:"
            for parentDataset,version in datasetNames:                
                result = getGatewayDatasetChildren(parentDataset, serviceUrl=serviceUrl)
                if not verbose:
@@ -258,29 +260,42 @@ class gateway_query_widgets:
                    fullresult = [getGatewayDatasetMetadata(item, serviceUrl=serviceUrl) for item in result]
                    #printResult(getGatewayDatasetFields(), fullresult)
                    printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
+           print " "
 
        if get_CheckVar_MetaData()==True:
+           print " "
+           print "Performing Gateway Query for listing dataset metadata:"
            for datasetName,version in datasetNames: 
                 header = getGatewayDatasetFields()
                 result = getGatewayDatasetMetadata(datasetName, serviceUrl=serviceUrl)
                 #printResult(header, [result])
                 printResult(header, [result], sys.stdout, True)
+           print " "
 
        if get_CheckVar_Files()==True:
+           print " "
+           print "Performing Gateway Query for listing Files associated with selected datasets"
            for filesParent,version in datasetNames: 
                 header, result = getGatewayDatasetFiles(filesParent, serviceUrl=serviceUrl)
                 printResult(header, result, sys.stdout, True)
+           print " "
         
        if get_CheckVar_URLs()==True:
+           print " "
+           print "Performing Gateway Query for URLs:"
            for urlParent,version in datasetNames: 
                 header, result = getGatewayDatasetAccessPoints(urlParent, serviceUrl=serviceUrl)
                 printResult(header, result, sys.stdout, True)
-        
+           print " "
         
     def evt_list_experiments( self):  
         serviceUrl = None  
         header, result = getGatewayExperiments(serviceUrl=serviceUrl)
+        print " "
+        print "Performing Gateway Query for Listing Experiments:"
         printResult(header, result, sys.stdout, True)
+        print " "
+        
         #printResult(header, result, sys.stderr, True)
         #printResult(header, result)
 
