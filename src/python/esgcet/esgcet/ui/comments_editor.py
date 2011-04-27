@@ -18,13 +18,9 @@ class EDITOR:
             try:
                 dialog_icon = tkFileDialog.Open(master=self.parent.control_frame2,title = 'Editor Selection')
                 editor=dialog_icon.show(initialdir="/")   #os.getcwd())
-<<<<<<< HEAD
             except Exception, e:
                 print e
-=======
-            except:
-                print excpt
->>>>>>> master
+
   
   # finally if all else fails....
             if editor == None:
