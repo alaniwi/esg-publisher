@@ -220,9 +220,11 @@ class gateway_query_widgets:
        
        if (gateway_query_widgets.get_CheckVar_Files()==True or gateway_query_widgets.get_CheckVar_List()==True or gateway_query_widgets.get_CheckVar_MetaData()==True or gateway_query_widgets.get_CheckVar_URLs()==True ):
             datasetNames = self.parent.parent.menu.Dataset.evt_query_gw_for_dataset( self.parent.parent )
+       """
             for name,version in datasetNames:
                 print name
-       if True: return;
+       """
+ 
        """       
        for flag, arg in args:
            if flag=='--files':
@@ -248,7 +250,7 @@ class gateway_query_widgets:
     #initLogging('DEFAULT')
 
        
-       if get_CheckVar_List()==True:
+       if gateway_query_widgets.get_CheckVar_List()==True:
            print " "
            print "Performing Gateway Query for Listing Metadata for all children:"
            for parentDataset,version in datasetNames:                
@@ -262,7 +264,7 @@ class gateway_query_widgets:
                    printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
            print " "
 
-       if get_CheckVar_MetaData()==True:
+       if gateway_query_widgets.get_CheckVar_MetaData()==True:
            print " "
            print "Performing Gateway Query for listing dataset metadata:"
            for datasetName,version in datasetNames: 
@@ -272,7 +274,7 @@ class gateway_query_widgets:
                 printResult(header, [result], sys.stdout, True)
            print " "
 
-       if get_CheckVar_Files()==True:
+       if gateway_query_widgets.get_CheckVar_Files()==True:
            print " "
            print "Performing Gateway Query for listing Files associated with selected datasets"
            for filesParent,version in datasetNames: 
@@ -280,7 +282,7 @@ class gateway_query_widgets:
                 printResult(header, result, sys.stdout, True)
            print " "
         
-       if get_CheckVar_URLs()==True:
+       if gateway_query_widgets.get_CheckVar_URLs()==True:
            print " "
            print "Performing Gateway Query for URLs:"
            for urlParent,version in datasetNames: 
@@ -302,19 +304,36 @@ class gateway_query_widgets:
 
     @staticmethod
     def get_CheckVar_Files():
-        return gateway_query_widgets.CheckVar_Files.get() 
+        ans = gateway_query_widgets.CheckVar_Files.get()
+        if ans == 1 :
+            return True
+        else: 
+            return False
+        #return ans   #gateway_query_widgets.CheckVar_Files.get() 
     
     @staticmethod
     def get_CheckVar_List():
-        return gateway_query_widgets.CheckVar_List.get() 
+        ans = gateway_query_widgets.CheckVar_List.get() 
+        if ans == 1 :
+            return True
+        else: 
+            return False
     
     @staticmethod
     def get_CheckVar_MetaData():
-        return gateway_query_widgets.CheckVar_MetaData.get() 
+        ans = gateway_query_widgets.CheckVar_MetaData.get() 
+        if ans == 1 :
+            return True
+        else: 
+            return False
     
     @staticmethod
     def get_CheckVar_URLs():
-        return gateway_query_widgets.CheckVar_URLs.get() 
+        ans = gateway_query_widgets.CheckVar_URLs.get() 
+        if ans == 1 :
+            return True
+        else: 
+            return False
     
     @staticmethod
     def get_Verbose():       
