@@ -253,23 +253,38 @@ class gateway_query_widgets:
        if gateway_query_widgets.get_CheckVar_List()==True:
            print " "
            print "Performing Gateway Query for Listing Metadata for all children:"
-           for parentDataset,version in datasetNames:                
-               result = getGatewayDatasetChildren(parentDataset, serviceUrl=serviceUrl)
+           for parentDataset,version in datasetNames:   
+               try:             
+                   result = getGatewayDatasetChildren(parentDataset, serviceUrl=serviceUrl)
+               except:
+                    warn =  "Warning: %s may not exist on the gateway...ignoring " % (parentDataset)
+                    print warn
+                    continue
                if not verbose:
                    for childid in result:
                        print childid
                else:
-                   fullresult = [getGatewayDatasetMetadata(item, serviceUrl=serviceUrl) for item in result]
+                    try:
+                       fullresult = [getGatewayDatasetMetadata(item, serviceUrl=serviceUrl) for item in result]
                    #printResult(getGatewayDatasetFields(), fullresult)
-                   printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
-           print " "
+                       printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
+                    except:
+                        warn =  "Warning: %s may not exist on the gateway...ignoring " % (result)
+                        print warn
+                        continue
+               print " "
 
        if gateway_query_widgets.get_CheckVar_MetaData()==True:
            print " "
            print "Performing Gateway Query for listing dataset metadata:"
            for datasetName,version in datasetNames: 
-                header = getGatewayDatasetFields()
-                result = getGatewayDatasetMetadata(datasetName, serviceUrl=serviceUrl)
+                try:
+                   header = getGatewayDatasetFields()
+                   result = getGatewayDatasetMetadata(datasetName, serviceUrl=serviceUrl)
+                except:
+                    warn =  "Warning: %s may not exist on the gateway...ignoring " % (datasetName)
+                    print warn
+                    continue
                 #printResult(header, [result])
                 printResult(header, [result], sys.stdout, True)
            print " "
@@ -278,16 +293,27 @@ class gateway_query_widgets:
            print " "
            print "Performing Gateway Query for listing Files associated with selected datasets"
            for filesParent,version in datasetNames: 
-                header, result = getGatewayDatasetFiles(filesParent, serviceUrl=serviceUrl)
-                printResult(header, result, sys.stdout, True)
-           print " "
+                try:
+                    header, result = getGatewayDatasetFiles(filesParent, serviceUrl=serviceUrl)
+                    printResult(header, result, sys.stdout, True)
+                except:
+                    warn =  "Warning: %s may not exist on the gateway...ignoring " % (datasetName)
+                    print warn
+                    continue
+                print " "
         
        if gateway_query_widgets.get_CheckVar_URLs()==True:
            print " "
            print "Performing Gateway Query for URLs:"
+           
            for urlParent,version in datasetNames: 
-                header, result = getGatewayDatasetAccessPoints(urlParent, serviceUrl=serviceUrl)
-                printResult(header, result, sys.stdout, True)
+               try:
+                   header, result = getGatewayDatasetAccessPoints(urlParent, serviceUrl=serviceUrl)
+                   printResult(header, result, sys.stdout, True)
+               except:
+                    warn =  "Warning: %s may not exist on the gateway...ignoring " % (urlParent)
+                    print warn
+                    continue    
            print " "
         
     def evt_list_experiments( self):  
