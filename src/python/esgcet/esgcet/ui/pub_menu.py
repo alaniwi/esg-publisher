@@ -17,7 +17,7 @@
 ###############################################################################
 #
 from Tkinter import *
-import Tkinter, Pmw, tkFont
+import Tkinter, Pmw, tkFont #@UnresolvedImport
 import os, string
 import gui_support
 import pub_controls
@@ -30,9 +30,10 @@ from help_HTML import helpHTML
 from help_File_HTML import LocalHelpHTML
 from esgcet.messaging import warning
 from esgcet.publish import deleteDatasetList, DELETE, UNPUBLISH, publishDatasetList
-from pkg_resources import resource_filename
+from pkg_resources import resource_filename #@UnresolvedImport
 from esgcet.publish.utility import generateDatasetVersionId
 from esgcet.config import *
+#from myproxy.client import *   #MyProxyClient 
 
 
 on_icon  = resource_filename('esgcet.ui', 'on.gif')
@@ -223,7 +224,7 @@ class create_publisher_menu:
       #-------------------------------------------
       # menu 3 -- 'login'
       #-------------------------------------------
-      #self.login_menu = create_login_menu( self.main_menu, parent, 0)
+      self.login_menu = create_login_menu( self.main_menu, parent, 0)
 
       #-------------------------------------------
       # menu 4 -- 'Help'
@@ -857,6 +858,15 @@ class create_login_menu:
 
    def evt_login(self, parent):
 
+        try:
+                from myproxy.client import MyProxyClient 
+        except Exception, e:
+                from tkMessageBox import showwarning
+                msg = 'MyProxy Login Failure... '
+                msg = msg + '\nPlease add MyProxyClient and '
+                msg = msg + '\n pyOpenSSL to your execution Path'
+                showwarning('Warning',msg)
+                raise
         # Create the username/password dialog.
         self.auth_dialog = Pmw.Dialog(
             parent,
@@ -895,6 +905,9 @@ class create_login_menu:
         if (result is None or result == 'Cancel'):
             self.auth_dialog.deactivate(result)
         else:
+            
+            from myproxy.client import MyProxyClient 
+            
             try:
                 self.username = self.txt_username.get()
                 self.password = self.txt_password.get()
@@ -902,8 +915,25 @@ class create_login_menu:
                 self.auth_dialog.deactivate(result)
 
                 parent.password_flg = True
+                """
+                Retrieve credentials from a MyProxy server running at myproxy.localhost on the default port:
+                
+                 /usr/local/globus/globus/bin/myproxy-logon -s pcmdi6.llnl.gov -l ganzberger -p 7512 -o $HOME/.globus/certificate-file
 
+                """  
+               
+                #from myproxy.client import MyProxyClient    #MyProxyClient                 
+                
+                myproxy = MyProxyClient(hostname='pcmdi6.llnl.gov') 
+                credentials = myproxy.logon(self.username, self.password, bootstrap=True)
+
+                """
+                credentials is a tuple containing certificate(s) and private key as strings. 
+                The bootstrap flag bootstraps the trust roots for the server downloading the 
+                CA certificate(s) to ~/.globus/certificates. 
+                """
             except Exception, e:
+                print Exception.message
                 raise
 
 
