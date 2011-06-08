@@ -38,6 +38,17 @@ from esgcet.query import getQueryFields
 from esgcet.publish import pollDatasetPublicationStatus, generateDatasetVersionId, parseDatasetVersionId
 from pkg_resources import resource_filename
 
+import sys
+import getopt
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from esgcet.config import loadConfig, initLogging
+from esgcet.model import Dataset, DatasetVersion
+from esgcet.query import printResult
+from esgcet.messaging import warning
+
+
 on_icon  = resource_filename('esgcet.ui', 'on.gif')
 off_icon = resource_filename('esgcet.ui', 'off.gif')
 
@@ -159,13 +170,89 @@ class query_widgets:
                 command = pub_controls.Command( ntk.new_query_page, parent, None )
       )
       w.pack(side='top',padx = 0, pady = 3)
+      #-----------------------------------------------------------------------
+      bnFont=tkFont.Font(self.parent.parent, family = pub_controls.label_button_font_type,  size=pub_controls.label_button_font_size, weight=font_weight)
+      cw_start = Tkinter.Button(self.button_controls.interior(),
+                    text='Show Files in Datasets',
+                    font = bnFont,
+                    background = "lightblue",
+                    command = pub_controls.Command( self.evt_show_files_4_selected_datasets ))
+      cw_start.pack(padx=10, pady=10, expand='yes', fill='both')
+      #lw_start3.grid(row=6, sticky=W)
+      
+      self.parent.parent.balloon.bind(cw_start, "Display all files associated with the selected datasets.")
+      
+      cw_start.pack(side='top', fill='x', pady=3)
 
+
+
+
+      #----------------------------------------------------------------------------
       self.button_controls.pack(side='top', fill='x', pady=3)
 
       #----------------------------------------------------------------------------------------
       # End the creation of the project pulldown query selection
       #----------------------------------------------------------------------------------------
+    def evt_show_files_4_selected_datasets( self ):
+   
+     
+        print " "
+        print "Performing Dataset File Query for listing dataset metadata:"
+        print " "
+        # Load the configuration and set up a database connection
+        
+        datasetIds = self.parent.parent.menu.Dataset.evt_query_gw_for_dataset( self.parent.parent )
+        
+        #config = loadConfig(init_file)
+        #engine = create_engine(config.getdburl('extract'), echo=echoSql, pool_recycle=3600)
+        #initLogging('extract', override_sa=engine)
+        #Session = sessionmaker(bind=engine, autoflush=True, autocommit=False)
+        session = self.Session()
 
+        # Lookup the dataset versions
+        #filetuples = []
+        for datasetId, version in datasetIds:
+            #datasetId, version = parseDatasetVersionId(datasetVersionId)
+            filetuples = []
+     
+        # First find the dataset
+            dset = session.query(Dataset).filter_by(name=datasetId).first()
+            if dset is None:
+                warning("Dataset not found: %s"%datasetVersionId)
+                continue
+            elif version==-1:
+                version = dset.getVersion()
+            
+            rowTuple = session.query(Dataset, DatasetVersion).filter(Dataset.id==DatasetVersion.dataset_id).filter(Dataset.name==datasetId).filter(DatasetVersion.version==version).first()
+            
+            if rowTuple is None:
+                warning("Dataset %s, version %d not found"%(datasetId, version))
+                continue
+            
+            dsetVersionObj = rowTuple[1]
+            if dsetVersionObj is None:
+                warning("Dataset not found: %s"%datasetVersionId)
+                continue
+            
+            
+          
+            filetuples.extend([(file.getLocation(), str(file.getVersion()), str(file.getSize()), str(file.getPublicationTime()), file.getModificationFtime(), file.getTrackingID(), file.getChecksum(), file.getChecksumType()) for file in dsetVersionObj.files])
+            #filetuples.sort()
+            print('Files contained within Dataset:  %s' , datasetId)
+            printResult(['path', 'version', 'size', 'publication_time', 'modification_time', 'tracking_id', 'checksum', 'checksum_type'], filetuples, sys.stdout, True)
+            print " "
+
+    
+#        filetuples.sort()
+#        printResult(['Files contained within dataset Dataset '], datasetId, sys.stdout, True)
+#        printResult(['path', 'version', 'size', 'publication_time', 'modification_time', 'tracking_id', 'checksum', 'checksum_type'], filetuples, sys.stdout, True)
+
+        #printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
+        print " "
+        session.close()
+       
+ 
+        
     #----------------------------------------------------------------------------------------
     # Display the one dataset in the "Query" page if an ID is given.
     #----------------------------------------------------------------------------------------
@@ -173,6 +260,8 @@ class query_widgets:
        query_id = self.query_entry.get()
        ntk = generate_notebook( self.parent, self.Session )
        ntk.new_query_page( self.parent, None, query_id )
+       
+       
 
 #----------------------------------------------------------------------------------------
 # Construct a notebook to view the results of querying or defining a dataset id. This 
