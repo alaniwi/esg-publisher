@@ -209,6 +209,8 @@ class query_widgets:
         #Session = sessionmaker(bind=engine, autoflush=True, autocommit=False)
         session = self.Session()
 
+        #txtFont_size=pub_controls.tab_font_size
+        #pub_controls.tab_font_size=9
         # Lookup the dataset versions
         #filetuples = []
         for datasetId, version in datasetIds:
@@ -249,6 +251,9 @@ class query_widgets:
 
         #printResult(getGatewayDatasetFields(), fullresult, sys.stdout, True)
         print " "
+        
+       
+        #pub_controls.tab_font_size=txtFont_size
         session.close()
        
  

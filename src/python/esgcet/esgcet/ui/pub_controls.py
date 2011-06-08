@@ -103,30 +103,30 @@ class MyButton(Tkinter.Button):
 #                             Cambria, Calibri)
 #---------------------------------------------------------------------
 menu_font_type = 'Helvetica'
-menu_font_size = -16
+menu_font_size = -15 #16
 
 button_font_type = 'Helvetica'
-button_font_size = -16
+button_font_size = -15 #16
 
 collection_font_type = 'Helvetica'
-collection_font_size= -13
+collection_font_size= -13 #13
 
 button_group_font_type = 'Helvetica'
-button_group_font_size = -16
+button_group_font_size = -15 #16
 
 combobox_font_type = 'Helvetica'
-combobox_font_size = -14
+combobox_font_size = -13 #14
 
 label_button_font_type = 'Helvetica'
-label_button_font_size = -14
+label_button_font_size = -13 #14
 
 text_font_type = 'Helvetica'
-text_font_size = -14
+text_font_size = -13 #14
 
 tab_font_type = 'Helvetica'
-tab_font_size = -14
+tab_font_size = -13 #14
 
-splash_font_size = -14
+splash_font_size = -13 #14
 font_weight = "normal"
 bnfont_weight = "normal"
 mnfont_weight = "normal"
