@@ -855,9 +855,37 @@ class create_login_menu:
                          font = mnFont,
                          command = pub_controls.Command(self.evt_login, parent)
                         )
-
+   
+   def select_server(self, item):
+    self.myproxy_server=item
+    pass
+   
+   def get_MyProxyServers(self):
+       return ("pcmdi3.llnl.gov",
+               "pcmdi6.llnl.gov",
+               "pcmdi7.llnl.gov",
+               "bmbf-ipcc-ar5.dkrz.de", 
+               "cloudsgate2.larc.nasa.gov", 
+               "cmip2.dkrz.de", 
+               "data-ecearth.ichec.ie",
+               "dev-hydra.esrl.svc", 
+               "dp15.nccs.nasa.gov",
+               "esg-datanode.jpl.nasa.gov",
+               "test-datanode.jpl.nasa.gov",
+               "esg-vm-cssef01.ccs.ornl.gov",
+               "esg-vm-demo03.ccs.ornl.gov",
+               "esg1-gw.pnl.gov",
+               "esgf-node1.llnl.gov",
+               "esgf-node3.llnl.gov",
+               "esgf-p2p-test.dkrz.de",
+               "euclipse1.dkrz.de",
+               "localhost.localdomain" ,
+               "nomads-esg.ncdc.noaa.gov"
+               
+               )
+   
    def evt_login(self, parent):
-
+       
         try:
                 from myproxy.client import MyProxyClient 
         except Exception, e:
@@ -872,7 +900,7 @@ class create_login_menu:
             parent,
             buttons = ('OK', 'Cancel'),
             defaultbutton = 'OK',
-            title = 'Authentication Required',
+            title = 'MyProxy Server Login',
             command = pub_controls.Command(self.handle_auth_prompt, parent)
             )
 
@@ -899,7 +927,23 @@ class create_login_menu:
                             )
         self.txt_password.pack(side=Tkinter.TOP, padx=5, pady=2)
 
+        self.txt_server = self.get_MyProxyServers()
+
+        self.combobox = Pmw.ComboBox(self.auth_dialog.interior(), label_text='Server:', labelpos=W,
+                        listbox_width=24, dropdown=1,
+                        selectioncommand=self.select_server,
+                        scrolledlist_items=self.txt_server)
+        self.combobox.pack(fill=BOTH, expand=1, padx=8, pady=8)
+
+        self.combobox.selectitem(self.txt_server[0])
+
+        self.combobox.pack(side=Tkinter.TOP, padx=5, pady=2)
+        self.myproxy_server=self.txt_server[0]
+        
+   
+        
         self.auth_dialog.activate(geometry = 'centerscreenalways')
+        
 
    def handle_auth_prompt(self, parent, result):
         if (result is None or result == 'Cancel'):
@@ -924,7 +968,7 @@ class create_login_menu:
                
                 #from myproxy.client import MyProxyClient    #MyProxyClient                 
                 
-                myproxy = MyProxyClient(hostname='pcmdi6.llnl.gov') 
+                myproxy = MyProxyClient(hostname=self.myproxy_server) #'pcmdi6.llnl.gov') 
                 credentials = myproxy.logon(self.username, self.password, bootstrap=True)
 
                 """
