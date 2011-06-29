@@ -33,6 +33,13 @@ from esgcet.publish import deleteDatasetList, DELETE, UNPUBLISH, publishDatasetL
 from pkg_resources import resource_filename #@UnresolvedImport
 from esgcet.publish.utility import generateDatasetVersionId
 from esgcet.config import *
+#import library to do http requests:
+import urllib2
+import xml.dom.minidom 
+#import easy to use xml parser called minidom:
+from xml.dom.minidom import parseString
+
+
 #from myproxy.client import *   #MyProxyClient 
 
 
@@ -859,33 +866,30 @@ class create_login_menu:
    def select_server(self, item):
     self.myproxy_server=item
     pass
-   
-   def get_MyProxyServers(self):
-       return ("pcmdi3.llnl.gov",
-               "pcmdi6.llnl.gov",
-               "pcmdi7.llnl.gov",
-               "bmbf-ipcc-ar5.dkrz.de", 
-               "cloudsgate2.larc.nasa.gov", 
-               "cmip2.dkrz.de", 
-               "data-ecearth.ichec.ie",
-               "dev-hydra.esrl.svc", 
-               "dp15.nccs.nasa.gov",
-               "esg-datanode.jpl.nasa.gov",
-               "test-datanode.jpl.nasa.gov",
-               "esg-vm-cssef01.ccs.ornl.gov",
-               "esg-vm-demo03.ccs.ornl.gov",
-               "esg1-gw.pnl.gov",
-               "esgf-node1.llnl.gov",
-               "esgf-node3.llnl.gov",
-               "esgf-p2p-test.dkrz.de",
-               "euclipse1.dkrz.de",
-               "localhost.localdomain" ,
-               "nomads-esg.ncdc.noaa.gov"
+    return
+
+
+   def get_MyProxyServers1(self):
+    return {"ESGF-PCMDI":"pcmdi3.llnl.gov",
+                       "ESGF-JPL":"esg-gateway.jpl.nasa.gov",
+                       "ESGF-ORNL":"esg2-gw.ccs.ornl.gov",
+                       "ESGF-BADC":"cmip-gw.badc.rl.ac.uk",
+                       "ESGF-DKRZ":"ipcc-ar5.dkrz.de",
+                       "ESG-NCAR":"esg.ucar.edu"}
                
-               )
-   
+ 
+   def get_MyProxyServers(self):
+    return ("pcmdi3.llnl.gov",
+                       "esg-gateway.jpl.nasa.gov",
+                       "esg2-gw.ccs.ornl.gov",
+                       "cmip-gw.badc.rl.ac.uk",
+                       "ipcc-ar5.dkrz.de",
+                       "esg.ucar.edu")
+               
+  
    def evt_login(self, parent):
        
+        self.port=7512  # default
         try:
                 from myproxy.client import MyProxyClient 
         except Exception, e:
@@ -927,6 +931,19 @@ class create_login_menu:
                             )
         self.txt_password.pack(side=Tkinter.TOP, padx=5, pady=2)
 
+
+        self.txt_port = Pmw.EntryField(
+                            self.auth_dialog.interior(),
+                            labelpos = Tkinter.W,
+                            value=str(self.port),
+                            label_text = 'Port:',
+                            entry_background = 'aliceblue',
+                            entry_foreground = 'black',
+                            validate = None
+                            )
+        self.txt_port.pack(side=Tkinter.TOP, padx=5, pady=2)
+        
+                
         self.txt_server = self.get_MyProxyServers()
 
         self.combobox = Pmw.ComboBox(self.auth_dialog.interior(), label_text='Server:', labelpos=W,
@@ -955,7 +972,8 @@ class create_login_menu:
             try:
                 self.username = self.txt_username.get()
                 self.password = self.txt_password.get()
-
+                self.port = int(self.txt_port.get())
+                
                 self.auth_dialog.deactivate(result)
 
                 parent.password_flg = True
@@ -968,9 +986,11 @@ class create_login_menu:
                
                 #from myproxy.client import MyProxyClient    #MyProxyClient                 
                 
-                myproxy = MyProxyClient(hostname=self.myproxy_server) #'pcmdi6.llnl.gov') 
+                myproxy = MyProxyClient(hostname=self.myproxy_server, port=self.port) #'pcmdi6.llnl.gov') 
+                
                 credentials = myproxy.logon(self.username, self.password, bootstrap=True)
 
+                print "MyProxy Login was successful to server ",self.myproxy_server
                 """
                 credentials is a tuple containing certificate(s) and private key as strings. 
                 The bootstrap flag bootstraps the trust roots for the server downloading the 
