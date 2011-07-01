@@ -33,6 +33,9 @@ from esgcet.publish import deleteDatasetList, DELETE, UNPUBLISH, publishDatasetL
 from pkg_resources import resource_filename #@UnresolvedImport
 from esgcet.publish.utility import generateDatasetVersionId
 from esgcet.config import *
+
+import shutil
+import ConfigParser
 #import library to do http requests:
 import urllib2
 import xml.dom.minidom 
@@ -889,7 +892,11 @@ class create_login_menu:
   
    def evt_login(self, parent):
        
-        self.port=7512  # default
+        #self.port=7512  # default
+    
+        ps = self.get_server_port()
+        self.port=ps[0]
+        self.myproxy_server=ps[1]
         try:
                 from myproxy.client import MyProxyClient 
         except Exception, e:
@@ -946,16 +953,26 @@ class create_login_menu:
                 
         self.txt_server = self.get_MyProxyServers()
 
+        self.index=0
+        self.server_found=False
+        for serv in self.txt_server:
+            if serv==self.myproxy_server:
+                self.server_found==True
+                break
+            self.index=self.index+1
+        
+        if self.server_found==False:
+            self.index=0
         self.combobox = Pmw.ComboBox(self.auth_dialog.interior(), label_text='Server:', labelpos=W,
                         listbox_width=24, dropdown=1,
                         selectioncommand=self.select_server,
                         scrolledlist_items=self.txt_server)
         self.combobox.pack(fill=BOTH, expand=1, padx=8, pady=8)
 
-        self.combobox.selectitem(self.txt_server[0])
+        self.combobox.selectitem(self.txt_server[self.index])
 
         self.combobox.pack(side=Tkinter.TOP, padx=5, pady=2)
-        self.myproxy_server=self.txt_server[0]
+        self.myproxy_server=self.txt_server[self.index]
         
    
         
@@ -974,6 +991,7 @@ class create_login_menu:
                 self.password = self.txt_password.get()
                 self.port = int(self.txt_port.get())
                 
+                
                 self.auth_dialog.deactivate(result)
 
                 parent.password_flg = True
@@ -984,13 +1002,16 @@ class create_login_menu:
 
                 """  
                
-                #from myproxy.client import MyProxyClient    #MyProxyClient                 
+                #from myproxy.client import MyProxyClient    #MyProxyClient   
+                ps=(self.txt_port.get(), self.myproxy_server) # must be saved as string             
+                # self.save_server_port( ps )
+                #print "port  and server ", self.port, self.myproxy_server
                 
                 myproxy = MyProxyClient(hostname=self.myproxy_server, port=self.port) #'pcmdi6.llnl.gov') 
                 
                 credentials = myproxy.logon(self.username, self.password, bootstrap=True)
 
-                print "MyProxy Login was successful to server ",self.myproxy_server
+                print "MyProxy Login was successful to server ",self.myproxy_server, self.port
                 """
                 credentials is a tuple containing certificate(s) and private key as strings. 
                 The bootstrap flag bootstraps the trust roots for the server downloading the 
@@ -1001,6 +1022,71 @@ class create_login_menu:
                 raise
 
 
+   def get_server_port( self ):
+    
+
+      configFile = getConfigFile()
+
+      config = SaneConfigParser(configFile)
+      #config = loadConfig(configFile)
+      #config=ConfigParser.ConfigParser()
+      config.read(configFile)
+      
+      esgini = open(configFile,"r")
+      
+      try:
+          port = config.get('myproxy', 'myproxy_port') 
+      except:
+          #config.add_section('myproxy')
+          #config.set('myproxy','myproxy_port','7512') 
+          port='7512'
+          #config.write(esgini) 
+          
+      try:
+          server = config.get('myproxy', 'myproxy_server')
+      except:
+          #config.set('myproxy','myproxy_server','pcmdi3.llnl.gov') 
+          server='pcmdi3.llnl.gov'  
+          #config.write(esgini)  
+      esgini.close()     
+      return (port,server)
+  
+  
+  
+   def save_server_port( self, ps ):
+       # Bug?  when I open the esg.ini to write to it the file is truncated to 0 length!
+       # Not sure how to fix this so saving to esg.ini here is disabled.   
+      
+      configFile = getConfigFile()  
+      try:
+        dest = configFile+'_PUB_GUI_COPY'
+        if os.path.exists(dest)==True:
+            os.remove(dest)
+        shutil.copy2(configFile,dest)
+        
+        config = SaneConfigParser(dest)
+      #config = loadConfig(configFile)
+      #config=ConfigParser.ConfigParser()
+        
+        esgini = open(dest, 'w+')
+        config.read(dest)
+      #config = loadConfig(None)
+        port = ps[0]
+        server=ps[1]
+        config.set('myproxy', 'myproxy_port', port) 
+        config.set('myproxy', 'myproxy_server', server)
+        config.write(esgini)
+        esgini.flush()
+        esgini.close()
+        os.remove(configFile)
+        os.rename(dest,configFile)
+      except:
+          print "Warning: myproxy port and server may not have been saved in esg.ini" 
+          if os.path.exists(dest)==True:
+            os.remove(dest)
+             
+      return
+    
 #----------------------------------------------------------------------------------------
 # Create the Help menu and its menu items
 #----------------------------------------------------------------------------------------
