@@ -33,7 +33,7 @@ from esgcet.publish import deleteDatasetList, DELETE, UNPUBLISH, publishDatasetL
 from pkg_resources import resource_filename #@UnresolvedImport
 from esgcet.publish.utility import generateDatasetVersionId
 from esgcet.config import *
-
+import sys
 import shutil
 import ConfigParser
 #import library to do http requests:
@@ -897,6 +897,7 @@ class create_login_menu:
         ps = self.get_server_port()
         self.port=ps[0]
         self.myproxy_server=ps[1]
+        self.myproxy_user=ps[2]
         try:
                 from myproxy.client import MyProxyClient 
         except Exception, e:
@@ -920,6 +921,7 @@ class create_login_menu:
         self.txt_username = Pmw.EntryField(
                             self.auth_dialog.interior(),
                             labelpos = Tkinter.W,
+                            value=self.myproxy_user,
                             label_text = 'Username:',
                             entry_background = 'aliceblue',
                             entry_foreground = 'black',
@@ -1003,8 +1005,8 @@ class create_login_menu:
                 """  
                
                 #from myproxy.client import MyProxyClient    #MyProxyClient   
-                ps=(self.txt_port.get(), self.myproxy_server) # must be saved as string             
-                # self.save_server_port( ps )
+                ps=(self.txt_port.get(), self.myproxy_server, self.txt_username.get()) # must be saved as string             
+                self.save_server_port( ps )
                 #print "port  and server ", self.port, self.myproxy_server
                 
                 myproxy = MyProxyClient(hostname=self.myproxy_server, port=self.port) #'pcmdi6.llnl.gov') 
@@ -1024,7 +1026,9 @@ class create_login_menu:
 
    def get_server_port( self ):
     
-
+      #if True:
+      #    return ('2119', 'pcmdi3.llnl.gov')
+      
       configFile = getConfigFile()
 
       config = SaneConfigParser(configFile)
@@ -1037,51 +1041,70 @@ class create_login_menu:
       try:
           port = config.get('myproxy', 'myproxy_port') 
       except:
-          #config.add_section('myproxy')
-          #config.set('myproxy','myproxy_port','7512') 
+          ##config.add_section('myproxy')
+          ##config.set('myproxy','myproxy_port','7512') 
           port='7512'
           #config.write(esgini) 
           
       try:
           server = config.get('myproxy', 'myproxy_server')
       except:
-          #config.set('myproxy','myproxy_server','pcmdi3.llnl.gov') 
-          server='pcmdi3.llnl.gov'  
-          #config.write(esgini)  
+          server='pcmdi3.llnl.gov' 
+
+      try:
+          user = config.get('myproxy', 'myproxy_user')
+      except:
+          user='' 
+  
       esgini.close()     
-      return (port,server)
+      return (port,server,user)
   
   
   
    def save_server_port( self, ps ):
-       # Bug?  when I open the esg.ini to write to it the file is truncated to 0 length!
-       # Not sure how to fix this so saving to esg.ini here is disabled.   
+       # Create a new version of esg.ini, read in the current esg.ini into it and then append to the end
+       # the new parameters.  This was the only way I could get new parameters added and/or existing ones
+       # replaced.
+       # 
       
       configFile = getConfigFile()  
       try:
         dest = configFile+'_PUB_GUI_COPY'
         if os.path.exists(dest)==True:
             os.remove(dest)
-        shutil.copy2(configFile,dest)
-        
-        config = SaneConfigParser(dest)
-      #config = loadConfig(configFile)
-      #config=ConfigParser.ConfigParser()
-        
+ 
+        esgini_1 = open(configFile, 'r')
         esgini = open(dest, 'w+')
-        config.read(dest)
-      #config = loadConfig(None)
+        config = SaneConfigParser(dest)
+  
+        config.readfp(esgini_1)
+   
         port = ps[0]
         server=ps[1]
-        config.set('myproxy', 'myproxy_port', port) 
-        config.set('myproxy', 'myproxy_server', server)
-        config.write(esgini)
+        user=ps[2]
+        try:
+           if (config.has_section('myproxy') == False):
+              config.add_section('myproxy')
+           config.set('myproxy', 'myproxy_port', port) 
+           config.set('myproxy', 'myproxy_server', server)
+           config.set('myproxy', 'myproxy_user', user)
+        except:
+           esgini.close()
+           esgini_1.close()
+           print "Warning: myproxy username, port and server were not able to be saved in esg.ini" 
+           return
+
+        
         esgini.flush()
+        
+        config.write(esgini)
         esgini.close()
+        esgini_1.close()
         os.remove(configFile)
         os.rename(dest,configFile)
-      except:
-          print "Warning: myproxy port and server may not have been saved in esg.ini" 
+      except Exception, inst:
+          print inst
+          print "Warning: myproxy username, port and server may not have been saved in esg.ini" 
           if os.path.exists(dest)==True:
             os.remove(dest)
              
