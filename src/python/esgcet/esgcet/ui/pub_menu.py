@@ -868,7 +868,7 @@ class create_login_menu:
    
    def select_server(self, item):
     self.myproxy_server=item
-    pass
+    self.txt_port.setvalue( self.get_defPort(item))
     return
 
 
@@ -883,13 +883,31 @@ class create_login_menu:
  
    def get_MyProxyServers(self):
     return ("pcmdi3.llnl.gov",
+            "pcmdi6.llnl.gov",
                        "esg-gateway.jpl.nasa.gov",
                        "esg2-gw.ccs.ornl.gov",
                        "cmip-gw.badc.rl.ac.uk",
                        "ipcc-ar5.dkrz.de",
                        "esg.ucar.edu")
                
-  
+   def get_defPort(self, gateway):
+       if gateway=="pcmdi3.llnl.gov":
+           return '2119'
+       else:
+           return '7512'
+       
+       
+   def getMyProxyOutput(self):
+      home = os.environ.get('HOME')
+      # $HOME/.globus/certificate-file
+      
+      if home is not None:
+         outputFile = os.path.join(home, '.globus', 'certificate-file')
+      else:
+          raise NameError('Warning..environmental variable HOME must be set to find .globus directory for myproxy output certificates')
+      print outputFile
+      return outputFile   
+         
    def evt_login(self, parent):
        
         #self.port=7512  # default
@@ -898,6 +916,9 @@ class create_login_menu:
         self.port=ps[0]
         self.myproxy_server=ps[1]
         self.myproxy_user=ps[2]
+        
+        # validate
+        self.port = self.get_defPort(self.myproxy_server)
         try:
                 from myproxy.client import MyProxyClient 
         except Exception, e:
@@ -959,7 +980,7 @@ class create_login_menu:
         self.server_found=False
         for serv in self.txt_server:
             if serv==self.myproxy_server:
-                self.server_found==True
+                self.server_found=True
                 break
             self.index=self.index+1
         
@@ -975,8 +996,6 @@ class create_login_menu:
 
         self.combobox.pack(side=Tkinter.TOP, padx=5, pady=2)
         self.myproxy_server=self.txt_server[self.index]
-        
-   
         
         self.auth_dialog.activate(geometry = 'centerscreenalways')
         
@@ -1004,15 +1023,22 @@ class create_login_menu:
 
                 """  
                
-                #from myproxy.client import MyProxyClient    #MyProxyClient   
+               
                 ps=(self.txt_port.get(), self.myproxy_server, self.txt_username.get()) # must be saved as string             
                 self.save_server_port( ps )
-                #print "port  and server ", self.port, self.myproxy_server
                 
-                myproxy = MyProxyClient(hostname=self.myproxy_server, port=self.port) #'pcmdi6.llnl.gov') 
                 
-                credentials = myproxy.logon(self.username, self.password, bootstrap=True)
+                myproxy = MyProxyClient(hostname=self.myproxy_server, port=self.port) 
+                
+                self.credentials = myproxy.logon(self.username, self.password, bootstrap=True)
 
+                self.fout = open(self.getMyProxyOutput(), 'w') 
+       
+                for cred in self.credentials: 
+                   self.fout.write(cred) 
+                   
+                self.fout.close()
+                
                 print "MyProxy Login was successful to server ",self.myproxy_server, self.port
                 """
                 credentials is a tuple containing certificate(s) and private key as strings. 
@@ -1026,31 +1052,24 @@ class create_login_menu:
 
    def get_server_port( self ):
     
-      #if True:
-      #    return ('2119', 'pcmdi3.llnl.gov')
-      
-      configFile = getConfigFile()
 
-      config = SaneConfigParser(configFile)
-      #config = loadConfig(configFile)
-      #config=ConfigParser.ConfigParser()
-      config.read(configFile)
-      
+      configFile = getConfigFile()
+      config = SaneConfigParser(configFile) 
+      config.read(configFile)      
       esgini = open(configFile,"r")
       
-      try:
-          port = config.get('myproxy', 'myproxy_port') 
-      except:
-          ##config.add_section('myproxy')
-          ##config.set('myproxy','myproxy_port','7512') 
-          port='7512'
-          #config.write(esgini) 
-          
       try:
           server = config.get('myproxy', 'myproxy_server')
       except:
           server='pcmdi3.llnl.gov' 
 
+      try:
+          port = config.get('myproxy', 'myproxy_port') 
+      except:
+        
+          port= self.get_defPort(server)
+       
+                
       try:
           user = config.get('myproxy', 'myproxy_user')
       except:
