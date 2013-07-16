@@ -1,12 +1,17 @@
-#!/bin/csh
-#setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
-set SAVEMASK=`umask`
-source /etc/esg.csh
+#!/bin/bash
+
+export SAVEMASK=`umask`
+[ -e /etc/esg.env ] && source /etc/esg.env || echo "Warning: Could not locate esg.env file"
+
+version=${version:-"2.11.0"}
+jar_home=/for_ganzberger1/dist
+jar_file=${jar_home}/esg-publisher-ui.${version}.jar
+
 umask 0002
-/usr/local/jdk1.7.0_21/bin/java   -Dsun.java2d.noddraw=true -ms1500m -mx1500m -Djava.util.prefs.systemRoot=/tmp/.java  -cp /for_ganzberger1/dist/PCMDI.jar:/for_ganzberger1/lib:/for_ganzberger1/lib:cog-jglobus-1.8.0.jar/for_ganzberger1/lib:cog-jobmanager-1.8.0.jar/for_ganzberger1/lib:cog-url-1.8.0.jar/for_ganzberger1/lib:commons-logging-1.1.jar/for_ganzberger1/lib:cryptix32.jar/for_ganzberger1/lib:cryptix-asn1.jar/for_ganzberger1/lib:cryptix.jar/for_ganzberger1/lib:jce-jdk13-131.jar/for_ganzberger1/lib:jgss.jar/for_ganzberger1/lib:junit.jar/for_ganzberger1/lib:log4j-1.2.15.jar/for_ganzberger1/lib:puretls.jar:. esgf.publisher.ui.SimplePublisher -i /esg/config/esgcet/esg.ini -s pcmdi11.llnl.gov -p 7512
+${JAVA_HOME}/bin/java -Dsun.java2d.noddraw=true -ms1500m -mx1500m -Djava.util.prefs.systemRoot=/tmp/.java  -cp ${jar_file}:/for_ganzberger1/lib:/for_ganzberger1/lib:cog-jglobus-1.8.0.jar/for_ganzberger1/lib:cog-jobmanager-1.8.0.jar/for_ganzberger1/lib:cog-url-1.8.0.jar/for_ganzberger1/lib:commons-logging-1.1.jar/for_ganzberger1/lib:cryptix32.jar/for_ganzberger1/lib:cryptix-asn1.jar/for_ganzberger1/lib:cryptix.jar/for_ganzberger1/lib:jce-jdk13-131.jar/for_ganzberger1/lib:jgss.jar/for_ganzberger1/lib:junit.jar/for_ganzberger1/lib:log4j-1.2.15.jar/for_ganzberger1/lib:puretls.jar:. esgf.publisher.ui.SimplePublisher -i /esg/config/esgcet/esg.ini -s pcmdi11.llnl.gov -p 7512
 
 
 umask $SAVEMASK
 exit 0
-#/usr/local/jdk1.7.0_21/bin/java   -Dsun.java2d.noddraw=true -ms1500m -mx1500m -Djava.util.prefs.systemRoot=/tmp/.java  -cp /export/ganzberger1/NetBeansProjects/PCMDI/dist/PCMDI.jar:. pcmdi.SimplePublisher -i /esg/config/esgcet/esg.ini
+#${JAVA_HOME}/bin/java -Dsun.java2d.noddraw=true -ms1500m -mx1500m -Djava.util.prefs.systemRoot=/tmp/.java  -cp ${jar_file} pcmdi.SimplePublisher -i /esg/config/esgcet/esg.ini $@
 
