@@ -113,7 +113,7 @@ Builds the project via ant (obviously).
   <property name="release_name" value="no_name"/>
   <filter token="release_name" value="${release_name}"/>
 
-  <property name="log_dir" value="/esg/logs"/>
+  <property name="log_dir" value="/tmp/esg/logs"/>
   <mkdir dir="${log_dir}" />
   <filter token="log_dir"  value="${log_dir}"/>
 
@@ -128,7 +128,7 @@ Builds the project via ant (obviously).
     -->
   
   <target name="-pre-init" unless="build.master">
-    <property name="build.compiler" value="javac1.5" /> 
+    <property name="build.compiler" value="javac1.7" /> 
     <property name="build.compiler.emacs" value="true" /> 
     <echo message="set build.compiler to ${build.compiler}"/>
   </target>
@@ -553,7 +553,7 @@ Builds the project via ant (obviously).
 	   classpathref="test_classpath"
 	   deprecation="true"
 	   failonerror="true"
-	   target="1.5"
+	   target="1.7"
 	   debug="on"
 	   verbose="off"
 	   nowarn="on"/>
