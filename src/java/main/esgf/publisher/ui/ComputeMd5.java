@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package pcmdi;
+package esgf.publisher.ui;
 /**
  *
  * @author ganzberger1
