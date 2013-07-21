@@ -156,7 +156,7 @@ Builds the project via ant (obviously).
     <property name="log_config"       	  value="${conf_dir}/log4j.properties"/>
     <property name="log_file"         	  value="${log_dir}/${module}_v${version_num}.log"/>
     <property name="javadoc_link_src" 	  value="false"/>
-    <property name="main_class"           value="esg.node.publisher_fe.Main"/>
+    <property name="main_class"           value="esgf.publisher.ui.SimplePublisher"/>
 
     <property name="doc_dir_generated"    value="${basedir}/docs-generated"/>
     <property name="jdoc_dir"   	  value="${doc_dir_generated}/javadocs"/>
@@ -330,12 +330,12 @@ Builds the project via ant (obviously).
     -->
   <target name="make_jar" depends="make"
 	  description="(Creates the jar file distribution of this project)">
-    <echo message="JAR -  ${build_dir} ->> ${dist_dir}/${module}-ui.${version_num}.jar"/>
+    <echo message="JAR -  ${build_dir} ->> ${dist_dir}/${module}-ui-${version_num}.jar"/>
     <delete>
-      <fileset dir="." includes="${dist_dir}/${module}-ui.${version_num}.jar"/>
+      <fileset dir="." includes="${dist_dir}/${module}-ui-${version_num}.jar"/>
     </delete>
     <mkdir dir="${dist_dir}" />
-    <jar destfile="${dist_dir}/${module}-ui.${version_num}.jar">
+    <jar destfile="${dist_dir}/${module}-ui-${version_num}.jar">
       <fileset dir="${build_dir}"
 	       includes="esgf/**,**/*.properties"
 	       excludes="**/test/**,**/test-instrumented/**"/>
@@ -351,6 +351,9 @@ Builds the project via ant (obviously).
 	  <attribute name="Sealed" value="false"/>
 	</section>
       </manifest>
+      <zipgroupfileset dir="${lib_fetched_dir}">
+        <include name="*.jar"/>
+      </zipgroupfileset>
     </jar>
   </target>
 
