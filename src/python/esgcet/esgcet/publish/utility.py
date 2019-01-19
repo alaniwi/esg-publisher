@@ -741,7 +741,7 @@ def iterateOverDatasets(projectName, dmap, directoryMap, datasetNames, Session, 
         Integer specifying how frequently to commit file info to database when scanning files
 
     """
-    from esgcet.publish import extractFromDataset, aggregateVariables
+    from esgcet.publish import extractFromDataset, aggregateVariables, addSkeletonVariables
 
     versionIsMap = (type(newVersion) is types.DictType)
     if versionIsMap:
@@ -881,9 +881,16 @@ def iterateOverDatasets(projectName, dmap, directoryMap, datasetNames, Session, 
         if runAggregate and (not nodbwrite):
             aggregateVariables(datasetName, Session, aggregateDimensionName=aggregateDimension, cfHandler=cfHandler,
                                progressCallback=testProgress2, datasetInstance=dataset, validate_standard_name=validate_standard_name)
-        elif testProgress2 is not None:
-            # Just finish the progress GUI
-            issueCallback(testProgress2, 1, 1, 0.0, 1.0)
+        else:
+            # if not doing aggregation then instead just add some basic variable info
+            # (but not if reaggregate=False, because this is where aggregation was turned
+            # during republication)
+            if (not nodbwrite) and (getattr(dataset, 'reaggregate', None) != False):
+                addSkeletonVariables(datasetName, Session, datasetInstance=dataset)
+
+            if testProgress2 is not None:
+                # Just finish the progress GUI
+                issueCallback(testProgress2, 1, 1, 0.0, 1.0)
             
         # Save the context with the dataset, so that it can be searched later
         if (not nodbwrite):
@@ -1250,3 +1257,12 @@ def getServiceCertsLoc():
         raise ESGPublishError("Error: " + service_certs_location + " does not exist.  Please run myproxy-logon with -b to bootstrap the certificates, or set an alternate location using the hessian_service_certs_location setting in esg.ini")
     return service_certs_location
 
+
+class Set(set):
+    "Set in which add returns a boolean (True if element did not already exist)"
+    def add(self, x):
+        if x in self:
+            return False
+        else:
+            super(Set, self).add(x)
+            return True

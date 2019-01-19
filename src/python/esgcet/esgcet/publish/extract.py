@@ -7,7 +7,7 @@ from esgcet.messaging import debug, info, warning, error, critical, exception
 from esgcet.model import *
 from esgcet.exceptions import *
 from esgcet.config import splitLine, getConfig
-from utility import getTypeAndLen, issueCallback, compareFiles, checksum, extraFieldsGet
+from utility import getTypeAndLen, issueCallback, compareFiles, checksum, extraFieldsGet, Set
 from esgcet.model import StandardName
 
 NAME=0
@@ -866,6 +866,37 @@ def createAggregateVar(var, varattr, aggregateDimensionName):
             aggVar.file_variables.append(aggfilevar)
     return aggVar
 
+
+def getDataset(datasetName, session, datasetInstance=None):
+    """
+    Get existing dataset and flush the variables and attributes, or create a new one - and return it.
+
+    - datasetName - String dataset identifier
+    - session  - Database session instance
+
+    - optional arg datasetInstance
+       Existing dataset instance. If not provided, the instance is regenerated from the database.
+
+    """
+    # Lookup the dataset
+    if datasetInstance is None:
+        dset = session.query(Dataset).filter_by(name=datasetName).first()
+        for variable in dset.variables:
+            session.delete(variable)
+        for attrname, attr in dset.attributes.items():
+            if not attr.is_category:
+                del dset.attributes[attrname]
+        session.commit()
+        dset.variables = []
+    else:
+        dset = datasetInstance
+        # session.save_or_update(dset)
+        session.add(dset)
+    if dset is None:
+        raise ESGPublishError("Dataset not found: %s"%datasetName)
+    return dset
+
+
 def aggregateVariables(datasetName, dbSession, aggregateDimensionName=None, cfHandler=None, progressCallback=None, stopEvent=None, datasetInstance=None, validate_standard_name=True):
     """
     Aggregate file variables into variables, and add to the database. Populates the database tables:
@@ -902,22 +933,7 @@ def aggregateVariables(datasetName, dbSession, aggregateDimensionName=None, cfHa
     session = dbSession()
     info("Aggregating variables")
 
-    # Lookup the dataset
-    if datasetInstance is None:
-        dset = session.query(Dataset).filter_by(name=datasetName).first()
-        for variable in dset.variables:
-            session.delete(variable)
-        for attrname, attr in dset.attributes.items():
-            if not attr.is_category:
-                del dset.attributes[attrname]
-        session.commit()
-        dset.variables = []
-    else:
-        dset = datasetInstance
-        # session.save_or_update(dset)
-        session.add(dset)
-    if dset is None:
-        raise ESGPublishError("Dataset not found: %s"%datasetName)
+    dset = getDataset(datasetName, session, datasetInstance=datasetInstance)
 
     dsetindex = {}                      # dsetindex[varname] = [(variable, domain), (variable, domain), ...]
                                         #   where domain = ((dim0, len0, 0), (dim1, len1, 1), ...)
@@ -1198,5 +1214,31 @@ def aggregateVariables(datasetName, dbSession, aggregateDimensionName=None, cfHa
             raise
 
     debug("Adding variable info to database")
+    session.commit()
+    session.close()
+        
+
+def addSkeletonVariables(datasetName, dbSession, datasetInstance=None):
+    """
+    add basic information about variables to a dataset (name, units and attributes only), so that they 
+    appear listed under the <datasets> in the catalog -- for use when aggregations are disabled
+    """
+    session = dbSession()
+    info("Adding basic variable info")
+    dset = getDataset(datasetName, session, datasetInstance=datasetInstance)
+    var_names = Set()
+    for file in dset.getFiles():        
+        for filevar in file.file_variables:
+            if var_names.add(filevar.short_name):
+                var = Variable(filevar.short_name, filevar.long_name)
+                att_names = Set()
+                for fvattribute in filevar.attributes:
+                    if att_names.add(fvattribute.name):
+                        attribute = VariableAttribute(fvattribute.name, map_to_charset(fvattribute.value), fvattribute.datatype, fvattribute.length)
+                        var.attributes.append(attribute)
+                        if attribute.name == 'units':
+                            var.units = attribute.value
+                var.file_variables.append(filevar)
+                dset.variables.append(var)
     session.commit()
     session.close()
