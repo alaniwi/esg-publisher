@@ -886,7 +886,8 @@ def iterateOverDatasets(projectName, dmap, directoryMap, datasetNames, Session, 
             # (but not if reaggregate=False, because this is where aggregation was turned
             # during republication)
             if (not nodbwrite) and (getattr(dataset, 'reaggregate', None) != False):
-                addSkeletonVariables(datasetName, Session, datasetInstance=dataset)
+                addSkeletonVariables(datasetName, Session, datasetInstance=dataset,
+                                     cfHandler=cfHandler, validate_standard_name=validate_standard_name)
 
             if testProgress2 is not None:
                 # Just finish the progress GUI

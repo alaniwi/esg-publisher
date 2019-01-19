@@ -1187,24 +1187,7 @@ def aggregateVariables(datasetName, dbSession, aggregateDimensionName=None, cfHa
     seq = 0
     nvars = len(dset.variables)
     for var in dset.variables:
-        attr = lookupAttr(var, 'standard_name')
-
-        if (attr is not None):
-            if validate_standard_name and (cfHandler is not None) and (not cfHandler.validateStandardName(attr)):
-                info("Invalid standard name: %s for variable %s"%(attr, var.short_name))
-            else:
-                # need to add standard_name to postgres if not validated
-                if not validate_standard_name:
-                    sname = session.query(StandardName).filter_by(name=attr).first()
-                    if sname is None:
-                        try:
-                            units = lookupAttr(var, 'units')
-                        except:
-                            units = ''
-                        standard_name = StandardName(attr, units)
-                        session.add(standard_name)
-
-                var.standard_name = attr
+        processStdName(session, var, validate_standard_name, cfHandler)
         seq += 1
         try:
             issueCallback(progressCallback, seq, nvars, 0.75, 1.0, stopEvent=stopEvent)
@@ -1218,7 +1201,34 @@ def aggregateVariables(datasetName, dbSession, aggregateDimensionName=None, cfHa
     session.close()
         
 
-def addSkeletonVariables(datasetName, dbSession, datasetInstance=None):
+
+def processStdName(session, var, validate_standard_name, cfHandler):
+    """
+    if the variable has a standard_name attribute, and it is valid or validation is disabled,
+    then set the standard_name property after adding to the db if required
+    """
+
+    attr = lookupAttr(var, 'standard_name')
+
+    if (attr is not None):
+        if validate_standard_name and (cfHandler is not None) and (not cfHandler.validateStandardName(attr)):
+            info("Invalid standard name: %s for variable %s"%(attr, var.short_name))
+        else:
+            # need to add standard_name to postgres if not validated
+            if not validate_standard_name:
+                sname = session.query(StandardName).filter_by(name=attr).first()
+                if sname is None:
+                    try:
+                        units = lookupAttr(var, 'units')
+                    except:
+                        units = ''
+                    standard_name = StandardName(attr, units)
+                    session.add(standard_name)
+
+            var.standard_name = attr
+
+
+def addSkeletonVariables(datasetName, dbSession, datasetInstance=None, cfHandler=None, validate_standard_name=True):
     """
     add basic information about variables to a dataset (name, units and attributes only), so that they 
     appear listed under the <datasets> in the catalog -- for use when aggregations are disabled
@@ -1238,9 +1248,8 @@ def addSkeletonVariables(datasetName, dbSession, datasetInstance=None):
                         var.attributes.append(attribute)
                         if attribute.name == 'units':
                             var.units = attribute.value
-                        elif attribute.name == 'standard_name':
-                            var.standard_name = attribute.value
                 var.file_variables.append(filevar)
+                processStdName(session, var, validate_standard_name, cfHandler)
                 dset.variables.append(var)
     session.commit()
     session.close()
