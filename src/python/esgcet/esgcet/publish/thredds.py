@@ -593,7 +593,7 @@ def _genPerVariableDatasetsV2(parent, dataset, datasetName, resolution, filesRoo
             for var_fileVersion in filevar.file.versions:
                 if var_fileVersion in ds_fileVersions:
                     filelist.append((filevar.file.getLocation(), filevar.file.getSize(), filevar.file))
-
+        _sortFileListByPath(filelist)
         if len(filelist)==0:
             if variable.short_name in variableElemDict:
                 variablesElem.remove(variableElemDict[variable.short_name])
@@ -680,10 +680,17 @@ def _genPerVariableDatasetsV2(parent, dataset, datasetName, resolution, filesRoo
             _genAggregationsV2(parent, variable, variableID, handler, dataset, project, model, experiment, aggServiceName, aggdim_name, perVarMetadata, versionNumber)
 
 
+def _sortFileListByPath(filelist):
+    # fortuitously, this alone should work, as the primary sort key
+    # is the first element of the tuple, which is the path
+    filelist.sort()
+
+
 def _genPerTimeDatasetsV2(parent, dataset, datasetName, filesRootLoc, filesRootPath, datasetRootDict, excludeVariables, offline, serviceName,
                           serviceDict, handler, project, model, experiment, versionNumber, gridftpMap=True, pid_wizard=None):
     datasetVersionObj = dataset.getVersionObj(versionNumber)
     filelist = [(fileobj.getLocation(), fileobj.getSize(), fileobj) for fileobj in datasetVersionObj.files]
+    _sortFileListByPath(filelist)
     filesID = datasetName
     try:
         filesName = handler.generateNameFromContext('per_time_files_dataset_name', project_description=project.description, model_description=model.description, experiment_description=experiment.description)
@@ -1006,7 +1013,7 @@ def _generateThreddsV2(datasetName, outputFile, handler, session, dset, context,
         variables = SE(metadata1, "variables", vocabulary="CF-1.0")
         shortNames = {}
         variableElemDict = {}
-        for variable in dset.variables:
+        for variable in sorted(dset.variables, cmp=lambda x,y: cmp(x.short_name, y.short_name)):
             if variable.short_name not in excludeVariables:
                 # It is possible for a dataset to have different variables with the same name,
                 # for example if the number of levels is different in one file than another.
