@@ -1238,6 +1238,8 @@ def addSkeletonVariables(datasetName, dbSession, datasetInstance=None):
                         var.attributes.append(attribute)
                         if attribute.name == 'units':
                             var.units = attribute.value
+                        elif attribute.name == 'standard_name':
+                            var.standard_name = attribute.value
                 var.file_variables.append(filevar)
                 dset.variables.append(var)
     session.commit()
